@@ -255,21 +255,17 @@ create index idx_courses_category on courses(category);
 ```
 
 ## 📂 Project Structure
- Online Course Management System
- │
- ├── schema/
- │   ├── tables.sql
- │   ├── functions.sql
- │   ├── triggers.sql
- │   ├── views.sql
- │   └── indexes.sql
- │
- ├── queries/
- │   ├── basic_queries.sql
- │   ├── advanced_queries.sql
- │   └── security.sql
- │
- ├── README.md
+ Online-Course-Management-System
+|
+|-- README.md
+|-- tables.sql
+|-- functions.sql
+|-- triggers.sql
+|-- views.sql
+|-- indexes.sql
+|-- basic_queries.sql
+|-- advanced_queries.sql
+|-- security.sql
 
 ## 🚀 How to Run
 - Create a PostgreSQL database
