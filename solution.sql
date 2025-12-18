@@ -1,0 +1,224 @@
+--Online Course Management System Project
+--Create Tables
+create table courses(
+course_id int primary key,
+title varchar(50),
+category varchar(50),
+instructor_id int,
+price int
+)
+
+create table enrollments(
+enrollment_id int primary key,
+student_id int,
+course_id int,
+enrollment_date date
+)
+
+create table instructors(
+instructor_id int primary key,
+name varchar(50),
+email varchar(100),
+expertise varchar(50) 
+)
+
+create table students(
+student_id int primary key,
+name varchar(50),
+email varchar(100),
+city varchar(50)
+)
+
+--Insert Data from a CSV Files into the SQL Tables
+copy courses from '‪D:/sql evening/project/courses.csv' delimiter ',' csv header;
+
+copy enrollments from 'D:/sql evening/project/enrollments.csv' delimiter ',' csv header;
+
+copy instructors from 'D:/sql evening/project/instructors.csv' delimiter ',' csv header;
+
+copy students from 'D:/sql evening/project/students.csv' delimiter ',' csv header;
+
+--(Part 1: Basic Queries)
+--1.Retrieve the title and price of all courses in the 'Data Science' category that cost less than 2000. 
+--Order the results from the cheapest to the most expensive.
+ select title,price from courses where category = 'Data Science' and price < 2000 order by price asc;
+
+--2.Determine the number of courses offered in each distinct category.
+select category, count(*) as total_courses from courses group by category;
+
+--3.Identify the categories where the total number of enrollments is greater than 150. 
+--Display the category name and the total enrollment count.
+select c.category, count(e.enrollment_id) as total_enrollments from courses as c
+inner join enrollments as e on c.course_id = e.course_id group by c.category having count (e.enrollment_id) > 150;
+
+--4.Find the top 5 most expensive courses. Display the course title and its price.
+select title,price from courses order by price desc limit 5;
+
+--5.List the 6th through 10th students (by ascending student_id) who live in 'London'.
+select student_id,name,city from students where city = 'London' order by student_id asc offset 5 limit 5;
+
+--(Part 2: Advanced Queries)
+--6.List the title of every course along with the name of the instructor who teaches it.
+select c.title,i.name as instructor_name from courses as c inner join instructors as i on c.instructor_id = i.instructor_id;
+
+--7.Display the name of every instructor. If an instructor is teaching any courses, also list the title of their courses. 
+--If an instructor is not teaching any courses, their name should still appear with a blank or NULL course title.
+select i.name, c.title from instructors i left join courses c on i.instructor_id = c.instructor_id;
+
+--8.Find the student name, course title, and the instructor name for all enrollments made by students living in the city 'New York'.
+select s.name as student_name,c.title as course_title,i.name as instructor_name from students as s 
+inner join enrollments as e on s.student_id = e.student_id
+inner join courses as c on e.course_id = c.course_id
+inner join instructors as i on c.instructor_id = i.instructor_id;
+
+--9.Find the name and city of all students who are enrolled in any course with the category of 'Cloud'.
+select s.name,s.city from students as s 
+inner join enrollments as e on s.student_id = e.student_id
+inner join courses as c on e.course_id = c.course_id where category = 'Cloud';
+
+--10.Retrieve the title and price of all courses that are more expensive than the average price of all courses in the entire catalog.
+select title, price from courses where price > (select avg(price) from courses);
+
+--11.Identify the name and expertise of the instructor who teaches the highest number of courses.
+select i.name, i.expertise from instructors as i
+inner join courses as c on i.instructor_id = c.instructor_id
+GROUP BY i.instructor_id ORDER BY COUNT(c.course_id) DESC LIMIT 1;
+
+--12.Find all unique names that appear in either the students table or the instructors table.
+select name from students
+UNION
+select name from instructors;
+
+--13.Find the course_id values that have at least one enrollment recorded in both the year 2024 and the year 2025.
+select course_id from enrollments
+where extract(year from enrollment_date) in (2024, 2025)
+group by  course_id having count(distinct extract(year from enrollment_date)) = 2;
+
+--14.Find the course_id values that have enrollments in the year 2025 but not in 2024.
+select distinct course_id from enrollments
+where extract(year from enrollment_date) = 2025 and course_id NOT IN(
+select course_id from enrollments
+where extract(year from enrollment_date) = 2024 );
+
+--15.For each course category, assign a rank to each course based on its price (highest price gets rank 1). 
+--The ranking should reset for each category. Display the course title, category, price, and the calculated rank.
+select title, category, price,
+rank() over (partition by category order by price desc) as price_rank from courses;
+
+--16.Calculate the difference between each course's price and the average price of all courses within its own category. 
+--Display the course title, price, category average price, and the calculated difference.
+select title, price, category,
+avg(price) over(partition by category) as category_avg_price,
+price - avg(price) over (partition by category) as price_difference from courses;
+
+--(Part 3: Database Management and Security) 
+--17.Write a PostgreSQL function called get_course_enrollment_count that accepts a course_id as an integer input and returns 
+--the total number of enrollments for that specific course as an integer output.
+create or replace function get_course_enrollment_count(p_course_id INT)
+returns INT as $$
+declare
+total_enrollments INT;
+begin
+select count(*) into total_enrollments from enrollments where course_id = p_course_id;
+returns total_enrollments;
+end;
+$$ language plpgsql;
+
+--18.Write the DDL to create an audit table named course_price_audit.
+create table course_price_audit (
+audit_id serial primary key,
+course_id int,
+old_price int,
+new_price int,
+changed_on timestamp default current_timestamp);
+
+--19.Create a trigger that automatically logs the course_id, old_price,and new_price into the course_price_audit table 
+--whenever the price of a course is updated in the courses table.
+create or replace function logs_course_price_update()
+returns trigger as $$
+begin
+insert into course_price_audit(course_id, old_price, new_price)
+values(OLD.course_id, OLD.price, NEW.price);
+return new;
+end;
+$$ language plpgsql;
+
+create trigger trg_course_price_audit
+after update on courses
+for each row 
+execute function logs_course_price_update();
+
+--20.Create a stored procedure (or a function with LANGUAGE plpgsql) called add_new_enrollment that inserts a new record into
+--the enrollments table using three parameters: p_student_id (INT), p_course_id (INT), and an optional p_enrollment_date (DATE). 
+--If no date is provided, the procedure must use the current date.
+create or replace function add_new_enrollment(
+p_student_id int,
+p_course_id int,
+p_enrollment_date date DEFAULT CURRENT_DATE)
+returns VOID as $$
+begin
+insert into enrollments(student_id, course_id, enrollment_date)
+values(p_student_id, p_course_id, p_enrollment_date);
+end;
+$$ language plpgsql;
+
+--21.Calculate the number of months that have passed between the earliest enrollment date recorded in the system and the current date.
+select (DATE_PART('year', AGE(CURRENT_DATE, MIN(enrollment_date)))) * 12 +
+(DATE_PART('month', AGE(CURRENT_DATE, MIN(enrollment_date)))) as total_months from enrollments;
+
+--22.Find the name of all students whose name contains 'Jackson' (case-insensitive). 
+--Display their name in uppercase and their email address.
+select upper(name) as name, email from students where name ILIKE '%jackson%';
+
+--23.Create a new PostgreSQL user role named auditor. Grant this role SELECT access on the enrollments table. 
+--Revoke the SELECT privilege on the city column of the students table from the auditor role.
+create role auditor;
+
+grant select on enrollments to auditor;
+
+revoke select (city) on students from auditor;
+
+--24.Create a view named v_instructor_performance that shows the instructor name, the title of the courses they teach, 
+--and the total number of enrollments for each of those courses.
+create view v_instructor_performance as select 
+    i.name AS instructor_name,
+    c.title AS course_title,
+    count(e.enrollment_id) as total_enrollments
+from instructors i
+inner join courses as c on i.instructor_id = c.instructor_id
+left join enrollments as e on c.course_id = e.course_id
+group by i.name, c.title;
+
+--25.Create a non-unique index on the category column of the courses table. 
+--Briefly explain the performance benefit of creating this index.
+create index idx_courses_category on courses(category);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
