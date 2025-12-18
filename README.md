@@ -1,1 +1,3 @@
-# Online_Course_Management_System_Sql_Project
+# Online Course Management System using SQL 
+
+![Online Course Management System logo]()
