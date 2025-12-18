@@ -61,7 +61,7 @@ changed_on timestamp default current_timestamp
 ```
 
 ## 🔍 SQL Solutions
-##(Part 1: Basic Queries)
+## (Part 1: Basic Queries)
 ### 1.Retrieve the title and price of all courses in the 'Data Science' category that cost less than 2000.Order the results from the cheapest to the most expensive.
  ```sql
 select title,price from courses where category = 'Data Science' and price < 2000 order by price asc;
@@ -255,21 +255,21 @@ create index idx_courses_category on courses(category);
 ```
 
 ## 📂 Project Structure
-Online Course Management System
-│
-├── schema/
-│   ├── tables.sql
-│   ├── functions.sql
-│   ├── triggers.sql
-│   ├── views.sql
-│   └── indexes.sql
-│
-├── queries/
-│   ├── basic_queries.sql
-│   ├── advanced_queries.sql
-│   └── security.sql
-│
-├── README.md
+ Online Course Management System
+ │
+ ├── schema/
+ │   ├── tables.sql
+ │   ├── functions.sql
+ │   ├── triggers.sql
+ │   ├── views.sql
+ │   └── indexes.sql
+ │
+ ├── queries/
+ │   ├── basic_queries.sql
+ │   ├── advanced_queries.sql
+ │   └── security.sql
+ │
+ ├── README.md
 
 ## 🚀 How to Run
 - Create a PostgreSQL database
