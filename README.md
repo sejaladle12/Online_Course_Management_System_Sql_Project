@@ -1,12 +1,12 @@
-# 🎓 Online Course Management System using SQL 
+#  Online Course Management System using SQL 
 
-![Online Course Management System logo](https://github.com/sejaladle12/Online_Course_Management_System_Sql_Project/blob/main/jpg.jpg)
+![Online Course Management System logo](https://github.com/sejaladle12/Online_Course_Management_System_Sql_Project/blob/main/logo.jpg)
 
-## 📌 Overview
+##  Overview
 The Online Course Management System (OCMS) is a PostgreSQL-based database project designed to manage students, courses, instructors, and enrollments for an online learning platform.
 The project focuses on implementing real-world database operations such as automation, auditing, analytics, performance optimization, and role-based security using SQL.
 
-## 🎯 Objective
+##  Objective
 - Design a relational database for an online learning system
 - Manage student enrollments and course data efficiently
 - Implement advanced SQL queries and joins
@@ -15,12 +15,12 @@ The project focuses on implementing real-world database operations such as autom
 - Improve performance using indexes
 - Apply role-based database security
 
-## 🛠️ Technologies Used
+## Technologies Used
 - Database: PostgreSQL / MySQL
 - Language: SQL (PL/pgSQL)
 - Tools: pgAdmin / psql
 
-## 🏗️ Dtabase Schema
+##  Dtabase Schema
 ```sql
 create table courses(
 course_id int primary key,
@@ -60,7 +60,7 @@ changed_on timestamp default current_timestamp
 )
 ```
 
-## 🔍 SQL Solutions
+##  SQL Solutions
 ## (Part 1: Basic Queries)
 ### 1.Retrieve the title and price of all courses in the 'Data Science' category that cost less than 2000.Order the results from the cheapest to the most expensive.
  ```sql
@@ -254,7 +254,7 @@ group by i.name, c.title;
 create index idx_courses_category on courses(category);
 ```
 
-## 📂 Project Structure
+##  Project Structure
 Online Course Management System/
 │
 ├── schema/
@@ -272,21 +272,21 @@ Online Course Management System/
 ├── README.md
 
 
-## 🚀 How to Run
+##  How to Run
 - Create a PostgreSQL database
 - Execute SQL files from the schema/ folder
 - Run query files from the queries/ folder to test functionality
 
-## 📚 Learning Outcomes
+## Learning Outcomes
 - Strong understanding of relational database design
 - Hands-on experience with PostgreSQL automation features
 - Improved SQL performance tuning skills
 - Practical knowledge of database security
 
-## ✅ Conclusion
+## Conclusion
 The Online Course Management System project demonstrates practical use of PostgreSQL for managing courses, students, and enrollments using advanced SQL features. It strengthens understanding of database automation, performance optimization, and security in real-world scenarios.
 
-## 👩‍💻 Author
+## Author
 Sejal Adle
 🔗GitHub: https:https://github.com/sejaladle12
 
